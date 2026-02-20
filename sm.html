@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="images/heart.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>You're Smart & Creative</title>
+    <style>
+        :root {
+            --bg-color: #472933;
+            --accent-pink: #ff4d6d;
+            --dark-red: #ff617f;
+            --text-pink: #d63384;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--dark-red);
+            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: transform 0.6s ease-in, opacity 0.5s;
+        }
+
+        /* Text Layer */
+        .content-layer {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            pointer-events: none;
+            padding: 0 20px;
+        }
+
+        h1 {
+            font-size: clamp(2.2rem, 10vw, 3.2rem);
+            margin: 0;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-top: 5px;
+            color: white;
+        }
+
+        .personal-note {
+            margin-top: 40px;
+            font-size: clamp(1rem, 4.5vw, 1.25rem);
+            font-style: italic;
+            max-width: 500px;
+            line-height: 1.6;
+            color: grey;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 2s ease-out 1s; /* Fades in after a delay */
+        }
+
+        .personal-note.reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Floating words layer (behind main text, above canvas) */
+        .word-layer {
+            position: absolute;
+            inset: 0;
+            z-index: 5;              /* canvas is 1, main text is 10 */
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .word {
+            position: absolute;
+            color: var(--accent-pink);  /* same as dots */
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            opacity: 0.75;
+            user-select: none;
+            white-space: nowrap;
+            transform: translate3d(0,0,0);
+            will-change: transform;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5rem;
+            z-index: 100;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            color: var(--dark-red);
+        }
+
+        .exit-down { transform: translateY(-100vh); opacity: 0; }
+    </style>
+</head>
+<body>
+
+    <button class="back-btn" onclick="goBack()">↓</button>
+
+    <canvas id="constellationCanvas"></canvas>
+    <div class="word-layer" id="wordLayer"></div>
+
+<div class="content-layer">
+    <h1>You're brilliant</h1>
+    <div class="subtitle">...and the way you think is quietly beautiful</div>
+    
+    <div class="personal-note" id="note">
+        "Calling you 'smart' doesn’t even begin to describe you."
+    </div>
+</div>
+
+
+    <script>
+        const canvas = document.getElementById('constellationCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const mouse = { x: null, y: null, radius: 150 };
+
+        // Floating words setup
+        const wordLayer = document.getElementById('wordLayer');
+        const WORDS = [
+            "Blueprint", "Designer", "Influencer", "Director", "Leader", "Roboticist",
+            "Author", "Aesthetic", "Influencer", "Artiste", "Krijuese", "Visionnaire",
+            "Researcher", "Architecture", "Creative", "Albanian", "French", "English"
+        ];
+        let wordParticles = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            wordLayer.style.width = canvas.width + "px";
+            wordLayer.style.height = canvas.height + "px";
+        }
+
+        window.addEventListener('resize', () => {
+            resize();
+            init(); // reflow density nicely on resize
+        });
+
+        window.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
+        window.addEventListener('touchmove', (e) => { 
+            mouse.x = e.touches[0].clientX; 
+            mouse.y = e.touches[0].clientY; 
+        });
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = (Math.random() * 1.2) - 0.6;
+                this.speedY = (Math.random() * 1.2) - 0.6;
+            }
+
+            draw() {
+                ctx.fillStyle = '#ff4d6d';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x > canvas.width || this.x < 0) this.speedX *= -1;
+                if (this.y > canvas.height || this.y < 0) this.speedY *= -1;
+
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < mouse.radius) {
+                    this.x -= dx / 30;
+                    this.y -= dy / 30;
+                }
+            }
+        }
+
+        class WordParticle {
+            constructor() {
+                this.text = WORDS[Math.floor(Math.random() * WORDS.length)];
+                this.el = document.createElement('span');
+                this.el.className = 'word';
+                this.el.textContent = this.text;
+
+                const size = Math.random() * 10 + 12; // 12px - 22px
+                this.el.style.fontSize = `${size}px`;
+
+                wordLayer.appendChild(this.el);
+
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+
+                this.speedX = (Math.random() * 0.9) - 0.45;
+                this.speedY = (Math.random() * 0.9) - 0.45;
+
+                this.pushFactor = Math.random() * 0.6 + 0.4;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                const padding = 60;
+                if (this.x > canvas.width + padding || this.x < -padding) this.speedX *= -1;
+                if (this.y > canvas.height + padding || this.y < -padding) this.speedY *= -1;
+
+                if (mouse.x !== null && mouse.y !== null) {
+                    let dx = mouse.x - this.x;
+                    let dy = mouse.y - this.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < mouse.radius) {
+                        this.x -= (dx / 35) * this.pushFactor;
+                        this.y -= (dy / 35) * this.pushFactor;
+                    }
+                }
+
+                this.el.style.transform = `translate3d(${this.x}px, ${this.y}px, 0)`;
+            }
+
+            destroy() {
+                this.el.remove();
+            }
+        }
+
+        function init() {
+            particles = [];
+            wordParticles.forEach(w => w.destroy());
+            wordParticles = [];
+
+            const density = (canvas.width * canvas.height) / 8000;
+            for (let i = 0; i < density; i++) {
+                particles.push(new Particle());
+            }
+
+            const wordDensity = Math.max(14, Math.floor((canvas.width * canvas.height) / 45000));
+            for (let i = 0; i < wordDensity; i++) {
+                wordParticles.push(new WordParticle());
+            }
+        }
+
+        function connect() {
+            for (let a = 0; a < particles.length; a++) {
+                for (let b = a; b < particles.length; b++) {
+                    let dx = particles[a].x - particles[b].x;
+                    let dy = particles[a].y - particles[b].y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 130) {
+                        let opacity = 1 - (distance / 130);
+                        ctx.strokeStyle = `rgba(201, 24, 74, ${opacity * 0.4})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[a].x, particles[a].y);
+                        ctx.lineTo(particles[b].x, particles[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+            }
+
+            for (let i = 0; i < wordParticles.length; i++) {
+                wordParticles[i].update();
+            }
+
+            connect();
+            requestAnimationFrame(animate);
+        }
+
+        function goBack() {
+            document.body.classList.add('exit-down');
+            setTimeout(() => { window.location.href = 'reasons.html'; }, 600);
+        }
+
+        window.onload = () => {
+            setTimeout(() => {
+                document.getElementById('note').classList.add('reveal');
+            }, 1000);
+        };
+
+        resize();
+        init();
+        animate();
+    </script>
+</body>
+</html>

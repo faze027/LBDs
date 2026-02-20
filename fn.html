@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="images/heart.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>You're Funny</title>
+    <style>
+
+        /* Add this to the <style> of your other files to make them "slide in" */
+body {
+    animation: fadeIn 0.8s ease-out;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+        :root {
+            --bg-color: #472933;
+            --her-color: #ff4d6d;
+            --my-color: #ff617f;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-color);
+            color: #ff617f;
+            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            padding: 20px;
+        }   
+
+        h1 { font-size: clamp(1.8rem, 8vw, 2.5rem); 
+            margin-bottom: 10px;
+            margin-top: 0px; 
+        }
+        h2 {            font-size: 1.2rem;
+            font-weight: 500;
+            margin-top: 5px;
+            color: var(--accent-pink);}
+
+        .stage {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            width: 100%;
+            height: 380px;
+            position: relative;
+            gap: 0; 
+            transition: gap 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        .bar-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 1s ease-in-out;
+        }
+
+        .bar-track {
+            width: 65px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            overflow: hidden;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .fill {
+            width: 100%;
+            height: 0;
+            border-radius: 40px;
+            transition: height 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #her-fill { background:  #ff758c; }
+        #my-fill { background:#a30000; }
+
+        #my-wrapper {
+            width: 0;
+            opacity: 0;
+            transform: scale(0);
+        }
+
+        .label {
+            margin-top: 15px;
+            font-size: 0.85rem;
+            width: 110px;
+            font-weight: bold;
+            text-align: center;
+            transition: opacity 0.8s;
+        }
+
+        /* The cheeky arrow text - distanced further */
+        .arrow-text {
+            position: absolute;
+            left: 120px; 
+            top: 10%;
+            width: 200px;
+            text-align: left;
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: var(--my-color);
+            opacity: 0;
+            transform: translateX(30px);
+            transition: all 0.8s ease;
+        }
+
+        .quote {
+            margin-top: 20px;
+            font-style: italic;
+            font-size: clamp(0.9rem, 4vw, 1.1rem);
+            max-width: 80%;
+            line-height: 1.5;
+            color: #fff;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+        }
+
+        /* Logic classes triggered by JS */
+        .stage.split { gap: 100px; }
+        
+        #my-wrapper.active {
+            width: 120px;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* The "Shrink & Dull" effect for her bar */
+        .her-shrunk { 
+            transform: scale(0.7); 
+            filter: grayscale(0.4) brightness(0.9);
+            opacity: 0.6;
+        }
+
+        .show-arrow { opacity: 1 !important; transform: translateX(0) !important; }
+        .show-quote { opacity: 1 !important; }
+
+
+        .back-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.5rem;
+    z-index: 100;
+}
+body { transition: transform 0.6s ease-in, opacity 0.5s; }
+.exit-back { transform: translateY(100vh); opacity: 0; }
+
+    </style>
+</head>
+<body>
+
+    <div class="back-btn" onclick="goBack('exit-back')">↑</div>
+
+<script>
+    function goBack(anim) {
+        document.body.classList.add(anim);
+        setTimeout(() => { window.location.href = 'reasons.html'; }, 600);
+    }
+</script>
+
+    <h1>You're funny</h1>
+    <h2>This is the funny scale</h2>
+
+    <div class="stage" id="stage">
+        <div class="bar-wrapper" id="her-wrapper">
+            <div class="bar-track">
+                <div id="her-fill" class="fill"></div>
+            </div>
+            <div class="label">Leona</div>
+        </div>
+
+        <div class="bar-wrapper" id="my-wrapper">
+            <div class="bar-track" style="position: relative;">
+                <div id="my-fill" class="fill"></div>
+                <div id="my-arrow" class="arrow-text">
+                    ⬅ That's how I am,<br>you'll get here sometime
+                </div>
+            </div>
+            <div class="label">Fayez</div>
+        </div>
+    </div>
+
+    <div class="quote" id="final-quote">
+        “You are Kinda funny -ish. sometimes”
+    </div>
+
+    <script>
+        window.onload = () => {
+            const stage = document.getElementById('stage');
+            const herFill = document.getElementById('her-fill');
+            const herWrapper = document.getElementById('her-wrapper');
+            const myFill = document.getElementById('my-fill');
+            const myWrapper = document.getElementById('my-wrapper');
+            const arrow = document.getElementById('my-arrow');
+            const quote = document.getElementById('final-quote');
+
+            // 1. Her bar fills to the top first
+            setTimeout(() => {
+                herFill.style.height = "100%";
+            }, 500);
+
+            // 2. 3 seconds later, Mine pushes hers
+            setTimeout(() => {
+                stage.classList.add('split');
+                myWrapper.classList.add('active');
+            }, 3000);
+
+            // 3. Mine goes to the top, hers "shinks" and gets duller
+            setTimeout(() => {
+                myFill.style.height = "100%";
+               // herWrapper.classList.add('her-shrunk');
+            }, 4000);
+
+            setTimeout(() => {
+                herFill.style.height = "50%";
+            }, 4000);
+
+            setTimeout(() => {
+                herFill.style.height = "80%";
+            }, 5000);
+
+            // 4. Show the arrow
+            setTimeout(() => {
+                arrow.classList.add('show-arrow');
+            }, 5000);
+
+            // 5. Show the sweet quote at the bottom
+            setTimeout(() => {
+                quote.classList.add('show-quote');
+            }, 6500);
+        };
+    </script>
+</body>
+</html>

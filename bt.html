@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    
+    <link rel="icon" type="image/png" href="images/heart.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>You're Beautiful</title>
+    <style>
+
+body {
+    animation: fadeIn 0.8s ease-out;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+        :root {
+            --bg-color: #472933;
+            --text-color: #c9184a;
+            --accent-pink: #ff4d6d;
+            --accent-pink2: #ff8a9f;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            height: 100vh;
+            overflow: hidden;
+            padding: 40px 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 10vw, 3rem);
+            margin: 0;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+#auraCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 20;          /* higher than image */
+    pointer-events: none; /* allows mouse to still interact normally */
+}
+
+
+        /* Bottom Section */
+        .bottom-section {
+            z-index: 100;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .describe-text {
+            font-size: 1.2rem;
+            font-weight: 500;
+            font-style: italic;
+            opacity: 0;
+            transition: opacity 2s ease;
+        }
+
+        /* Voice Message Container */
+        .audio-container {
+            background: var(--accent-pink2);
+            padding: 15px 20px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(214, 51, 132, 0.218);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            transition: opacity 2s ease 1s; /* Fades in after text */
+        }
+
+        audio {
+            height: 35px;
+            filter: sepia(20%) saturate(70%) hue-rotate(300deg); /* Blends player color */
+        }
+
+        .footer {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 10px;
+            color: var(--accent-pink2);
+        }
+
+        .visible { opacity: 1 !important; }
+
+
+        .back-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.5rem;
+    z-index: 100;
+}
+body { transition: transform 0.6s ease-in, opacity 0.5s; }
+.exit-back { transform: translateX(-100vw); opacity: 0; }
+
+
+
+.center-image {
+    width: clamp(160px, 30vw, 320px);
+    margin: 20px 0 10px 0;
+    z-index: 10;
+    position: relative;
+}
+
+
+    </style>
+</head>
+<body>
+
+    <div class="back-btn" onclick="goBack('exit-back')">→</div>
+
+<script>
+    function goBack(anim) {
+        document.body.classList.add(anim);
+        setTimeout(() => { window.location.href = 'reasons.html'; }, 600);
+    }
+</script>
+
+    <h1>You're beautiful</h1>
+<img src="images/MU.png" alt="makeup" class="center-image">
+
+    <canvas id="auraCanvas"></canvas>
+
+    <div class="bottom-section">
+        <div class="describe-text" id="desc">Describe Leona. Me:</div>
+        
+        <div class="audio-container" id="audio-box">
+            <span>Voice Message:</span>
+            <audio controls>
+                <source src="images/voice.mp3" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+        </div>
+
+        <div class="footer">Don't forget me when you become a celebrity, remember who's liking your freaky posts today</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('auraCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 15 + 5;
+                this.speedX = Math.random() * 2 - 1;
+                this.speedY = Math.random() * 2 - 1;
+                this.color = `rgba(255, 77, 109, ${Math.random() * 0.5})`;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.size > 0.2) this.size -= 0.1;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function handleParticles(e) {
+            const x = e.x || e.touches[0].clientX;
+            const y = e.y || e.touches[0].clientY;
+            for (let i = 0; i < 3; i++) {
+                particles.push(new Particle(x, y));
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].size <= 0.2) {
+                    particles.splice(i, 1);
+                    i--;
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        // Timing for the text and audio
+        window.onload = () => {
+            setTimeout(() => document.getElementById('desc').classList.add('visible'), 200);
+            setTimeout(() => document.getElementById('audio-box').classList.add('visible'), 500);
+        };
+
+        window.addEventListener('resize', resize);
+        window.addEventListener('mousemove', handleParticles);
+        window.addEventListener('touchmove', handleParticles);
+
+        resize();
+        animate();
+    </script>
+</body>
+</html>

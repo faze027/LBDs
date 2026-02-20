@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="images/heart.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>What you mean to me:</title>
+    <style>
+        :root {
+            --bg-color: #472933;
+            --accent-pink: #ff617f;
+            --dark-red: #ff617f;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--dark-red);
+            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: transform 0.7s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.5s ease;
+        }
+
+        h1 {
+            font-size: clamp(1.8rem, 8vw, 2.5rem);
+            margin-bottom: 60px;
+            text-align: center;
+            padding: 0 15px;
+        }
+
+        .compass-container {
+            display: grid;
+            grid-template-areas: 
+                ". top ."
+                "left . right"
+                ". bottom .";
+            gap: 25px;
+            position: relative;
+        }
+
+        .btn {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            border: none;
+            background-color: var(--accent-pink);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(255, 77, 109, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 0.95rem;
+            padding: 10px;
+            z-index: 2;
+        }
+
+        .btn:hover {
+            background-color: var(--dark-red);
+            transform: scale(1.05);
+        }
+
+        .btn-bt { grid-area: left; }
+        .btn-sh { grid-area: right; }
+        .btn-sm { grid-area: top; }
+        .btn-fn { grid-area: bottom; }
+
+        /* Honourable Mentions Button - Bottom Right */
+        .btn-hm {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 12px 20px;
+            background-color: white;
+            color: var(--accent-pink);
+            border: 2px solid var(--accent-pink);
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+
+        .btn-hm:hover {
+            background-color: var(--accent-pink);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        /* Directional Exit Animations */
+        .exit-left { transform: translateX(-100vw); opacity: 0; }
+        .exit-right { transform: translateX(100vw); opacity: 0; }
+        .exit-top { transform: translateY(-100vh); opacity: 0; }
+        .exit-bottom { transform: translateY(100vh); opacity: 0; }
+        .exit-scale { transform: scale(0); opacity: 0; } /* For Honourable Mentions */
+
+        .btn-label {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+            pointer-events: none;
+            color: var(--accent-pink);
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body id="main-body">
+
+    <h1>What you mean to me:</h1>
+
+    <div class="compass-container">
+        <div class="btn-label">TAP ONE</div>
+
+        <button class="btn btn-bt" onclick="navigate('bt.html', 'exit-right')">Beauty</button>
+        <button class="btn btn-sh" onclick="navigate('sh.html', 'exit-left')">Sweetheart</button>
+        <button class="btn btn-sm" onclick="navigate('sm.html', 'exit-bottom')">Smart</button>
+        <button class="btn btn-fn" onclick="navigate('fn.html', 'exit-top')">Humor </button>
+    </div>
+
+    <button class="btn-hm" onclick="navigate('hm.html', 'exit-scale')">Honourable Mentions ✨</button>
+
+    <script>
+        function navigate(url, animationClass) {
+            const body = document.getElementById('main-body');
+            body.classList.add(animationClass);
+
+            setTimeout(() => {
+                window.location.href = url;
+            }, 700);
+        }
+    </script>
+</body>
+</html>
